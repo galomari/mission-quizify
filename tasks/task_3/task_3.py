@@ -41,34 +41,34 @@ class DocumentProcessor:
         ```
         """
         
-        # Step 1: Render a file uploader widget. Replace 'None' with the Streamlit file uploader code.
-        uploaded_files = st.file_uploader(
-            #####################################
-            # Allow only type `pdf`
-            # Allow multiple PDFs for ingestion
-            #####################################
-        )
-        
+# Step 1: Render a file uploader widget
+        uploaded_files = st.file_uploader("Upload PDF files", type="pdf", accept_multiple_files=True)
+
+        # Step 2: Process the file
         if uploaded_files is not None:
             for uploaded_file in uploaded_files:
-                # Generate a unique identifier to append to the file's original name
-                unique_id = uuid.uuid4().hex
-                original_name, file_extension = os.path.splitext(uploaded_file.name)
-                temp_file_name = f"{original_name}_{unique_id}{file_extension}"
-                temp_file_path = os.path.join(tempfile.gettempdir(), temp_file_name)
+                # Save the uploaded file to a temporary location
+                with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                    temp_file.write(uploaded_file.read())
+                    temp_file_path = temp_file.name  # This is the file path of the temporary file
 
-                # Write the uploaded PDF to a temporary file
-                with open(temp_file_path, 'wb') as f:
-                    f.write(uploaded_file.getvalue())
+                    # Substep A: Use PyPDFLoader to load the PDF and extract pages
+                    loader = PyPDFLoader(temp_file_path)  # Pass the file path instead of the UploadedFile object
+                    pages = loader.load_and_split()
 
-                # Step 2: Process the temporary file
-                #####################################
-                # Use PyPDFLoader here to load the PDF and extract pages.
-                # https://python.langchain.com/docs/modules/data_connection/document_loaders/pdf#using-pypdf
-                # You will need to figure out how to use PyPDFLoader to process the temporary file.
+                        
+                        
+                        
+                        
+                        
+                        
                 
                 # Step 3: Then, Add the extracted pages to the 'pages' list.
                 #####################################
+                
+                for page in pages:
+                    self.pages.append(page)
+                     
                 
                 # Clean up by deleting the temporary file.
                 os.unlink(temp_file_path)
