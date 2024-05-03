@@ -1,7 +1,8 @@
 # embedding_client.py
 
 from langchain_google_vertexai import VertexAIEmbeddings
-
+import os
+import streamlit as st
 class EmbeddingClient:
     """
     Task: Initialize the EmbeddingClient class to connect to Google Cloud's VertexAI for text embeddings.
@@ -33,9 +34,12 @@ class EmbeddingClient:
         # Initialize the VertexAIEmbeddings client with the given parameters
         # Read about the VertexAIEmbeddings wrapper from Langchain here
         # https://python.langchain.com/docs/integrations/text_embedding/google_generative_ai
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\hp\mission-quizify\gemini-quizifytask-1-421919-374183ecfcc9.json"
         self.client = VertexAIEmbeddings(
             #### YOUR CODE HERE ####
-        )
+            model_name=model_name, project=project, location=location)
+
+         
         
     def embed_query(self, query):
         """
@@ -59,14 +63,23 @@ class EmbeddingClient:
         except AttributeError:
             print("Method embed_documents not defined for the client.")
             return None
-
+def main():
+        st.title("Text Embeddming with google cloud Vertx AI")
+        model_name = "textembedding-gecko@003"
+        project = "gemini-quizifytask-1-421919"
+        location = "us-central1"
+        
+        user_query= st.text_input("Enter text to embed","Hello World")
+        
+        if st.button("Get Embeddinggs"):
+            embedding_client=EmbeddingClient(model_name,project,location)
+            vectors=embedding_client.embed_query(user_query)
+            if vectors:
+                st.write(vectors)
+                st.success("Successfully used the embedding client!")
+            else:
+                st.error("Failed to retrieve embeddings")
+                
 if __name__ == "__main__":
-    model_name = "textembedding-gecko@003"
-    project = "YOUR PROJECT ID HERE"
-    location = "us-central1"
-
-    embedding_client = EmbeddingClient(model_name, project, location)
-    vectors = embedding_client.embed_query("Hello World!")
-    if vectors:
-        print(vectors)
-        print("Successfully used the embedding client!")
+    main()
+        
