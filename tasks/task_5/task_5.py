@@ -4,6 +4,7 @@ import streamlit as st
 sys.path.append(os.path.abspath('../../'))
 from tasks.task_3.task_3 import DocumentProcessor
 from tasks.task_4.task_4 import EmbeddingClient
+import chromadb
 
 
 # Import Task libraries
@@ -57,14 +58,30 @@ class ChromaCollectionCreator:
         # Use a TextSplitter from Langchain to split the documents into smaller text chunks
         # https://python.langchain.com/docs/modules/data_connection/document_transformers/character_text_splitter
         # [Your code here for splitting documents]
-        
-        if texts is not None:
-            st.success(f"Successfully split pages to {len(texts)} documents!", icon="✅")
+        text_splitter = CharacterTextSplitter(
+    separator=".",
+    chunk_size=1000,
+    chunk_overlap=200,
+    length_function=len,
+    is_separator_regex=False,
+)
+        # Extract the text content from the processed documents
+        document_texts = [document.page_content for document in self.processor.pages]
+
+        # Concatenate the text content from the processed documents into a single string
+        concatenated_text = " ".join(document_texts)
+
+        # Split the concatenated text into smaller chunks
+        text_chunks = text_splitter.split_text(concatenated_text)
+        if text_chunks is not None:
+            st.success(f"Successfully split pages to {len(text_chunks)} documents!", icon="✅")
 
         # Step 3: Create the Chroma Collection
         # https://docs.trychroma.com/
         # Create a Chroma in-memory client using the text chunks and the embeddings model
         # [Your code here for creating Chroma collection]
+        chroma_client = chromadb.Client()
+        self.db = chroma_client.create_collection(name="quizify_collection")
         
         if self.db:
             st.success("Successfully created Chroma Collection!", icon="✅")
@@ -93,7 +110,7 @@ if __name__ == "__main__":
     
     embed_config = {
         "model_name": "textembedding-gecko@003",
-        "project": "YOUR PROJECT ID HERE",
+        "project": "gemini-quizifytask-1-421919",
         "location": "us-central1"
     }
     
