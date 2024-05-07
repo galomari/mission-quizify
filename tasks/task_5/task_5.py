@@ -8,9 +8,11 @@ import chromadb
 
 
 # Import Task libraries
+from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.vectorstores import Chroma
+from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 
 class ChromaCollectionCreator:
     def __init__(self, processor, embed_model):
@@ -59,51 +61,45 @@ class ChromaCollectionCreator:
         # https://python.langchain.com/docs/modules/data_connection/document_transformers/character_text_splitter
         # [Your code here for splitting documents]
         text_splitter = CharacterTextSplitter(
-    separator=".",
+    separator="\n",
     chunk_size=1000,
     chunk_overlap=200,
-    length_function=len,
-    is_separator_regex=False,
+    
 )
         # Extract the text content from the processed documents
-        document_texts = [document.page_content for document in self.processor.pages]
 
-        # Concatenate the text content from the processed documents into a single string
-        concatenated_text = " ".join(document_texts)
-
-        # Split the concatenated text into smaller chunks
-        text_chunks = text_splitter.split_text(concatenated_text)
-        if text_chunks is not None:
-            st.success(f"Successfully split pages to {len(text_chunks)} documents!", icon="✅")
+        texts=text_splitter.split_documents(self.processor.pages)
+        if texts is not None:
+            st.success(f"Successfully split pages to {len(texts)} documents!", icon="✅")
 
         # Step 3: Create the Chroma Collection
         # https://docs.trychroma.com/
         # Create a Chroma in-memory client using the text chunks and the embeddings model
         # [Your code here for creating Chroma collection]
-        chroma_client = chromadb.Client()
-        self.db = chroma_client.create_collection(name="quizify_collection")
+        # from chromadb import Chroma
+        
+        self.db=Chroma.from_documents(texts,self.embed_model)
         
         if self.db:
             st.success("Successfully created Chroma Collection!", icon="✅")
         else:
             st.error("Failed to create Chroma Collection!", icon="🚨")
-    
-    def query_chroma_collection(self, query) -> Document:
-        """
-        Queries the created Chroma collection for documents similar to the query.
-        :param query: The query string to search for in the Chroma collection.
         
-        Returns the first matching document from the collection with similarity score.
-        """
-        if self.db:
-            docs = self.db.similarity_search_with_relevance_scores(query)
-            if docs:
-                return docs[0]
+    def query_chroma_collection(self, query) -> Document:
+            """
+            Queries the created Chroma collection for documents similar to the query.
+            :param query: The query string to search for in the Chroma collection.
+            
+            Returns the first matching document from the collection with similarity score.
+            """
+            if self.db:
+                docs = self.db.similarity_search_with_relevance_scores(query)
+                if docs:
+                    return docs[0]
+                else:
+                    st.error("No matching documents found!", icon="🚨")
             else:
-                st.error("No matching documents found!", icon="🚨")
-        else:
-            st.error("Chroma Collection has not been created!", icon="🚨")
-
+                st.error("Chroma Collection has not been created!", icon="🚨")  
 if __name__ == "__main__":
     processor = DocumentProcessor() # Initialize from Task 3
     processor.ingest_documents()
