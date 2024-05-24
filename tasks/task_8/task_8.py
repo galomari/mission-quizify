@@ -137,20 +137,40 @@ class QuizGenerator:
 
         Note: This method relies on `generate_question_with_vectorstore` for question generation and `validate_question` for ensuring question uniqueness. Ensure `question_bank` is properly initialized and managed.
         """
-        self.question_bank = []  # Reset the question bank
-        for _ in range(self.num_questions):
-            question_str = self.generate_question_with_vectorstore()
-            try:
-                question_dict = json.loads(question_str)  # Convert from JSON string to dictionary
-                if self.validate_question(question_dict):
+        self.question_bank = [] # Reset the question bank
+
+        for j in range(self.num_questions):
+            ##### YOUR CODE HERE #####
+            retry = 4
+            for i in range(retry):
+                print("Try ",i)
+                # Use class method to generate question
+                question_str = self.generate_question_with_vectorstore()
+                # print("Qn {j} Try {i}: {question_str} \n")
+                ##### YOUR CODE HERE #####
+                try:
+                    # Convert the JSON String to a dictionary
+                    question = json.loads(question_str)
+                except json.JSONDecodeError:
+                    print("Failed to decode question JSON.")
+                    print("Broken Question",question_str)
+                    continue  # Skip this iteration if JSON decoding fails
+                ##### YOUR CODE HERE #####
+
+                ##### YOUR CODE HERE #####
+                # Validate the question using the validate_question method
+                if self.validate_question(question):
                     print("Successfully generated unique question")
-                    self.question_bank.append(question_dict)
+                    # Add the valid and unique question to the bank
+                    self.question_bank.append(question)
+                    break
                 else:
                     print("Duplicate or invalid question detected.")
-            except json.JSONDecodeError:
-                print("Failed to decode question JSON.")
-        print("Final question bank:", self.question_bank)
-        return self.question_bank
+                    continue
+                time.sleep(4)
+                ##### YOUR CODE HERE #####
+
+        return self.question_bank  
 
     def validate_question(self, question: dict) -> bool:
         """

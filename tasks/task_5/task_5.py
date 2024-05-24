@@ -11,7 +11,7 @@ import chromadb
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores import Chroma,faiss
 from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 
 class ChromaCollectionCreator:
@@ -71,6 +71,9 @@ class ChromaCollectionCreator:
         texts=text_splitter.split_documents(self.processor.pages)
         if texts is not None:
             st.success(f"Successfully split pages to {len(texts)} documents!", icon="✅")
+        else:
+            st.error("Failed to split documents!", icon="🚨")
+            return
 
         # Step 3: Create the Chroma Collection
         # https://docs.trychroma.com/
@@ -78,16 +81,17 @@ class ChromaCollectionCreator:
         # [Your code here for creating Chroma collection]
         # from chromadb import Chroma
         
-        self.db=Chroma.from_documents(texts,self.embed_model)
-        
+       
+        self.db = Chroma.from_documents(texts, self.embed_model)
         if self.db:
             st.success("Successfully created Chroma Collection!", icon="✅")
         else:
             st.error("Failed to create Chroma Collection!", icon="🚨")
-            
+
+        
     def as_retriever(self):
         return self.db.as_retriever()
-        
+    
     def query_chroma_collection(self, query) -> Document:
             """
             Queries the created Chroma collection for documents similar to the query.

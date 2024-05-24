@@ -24,9 +24,8 @@ class DocumentProcessor:
         Given:
         - Handling of temporary files with unique names to avoid conflicts.
         
-        Your Steps:
+        Steps:
         1. Utilize the Streamlit file uploader widget to allow users to upload PDF files.
-           Hint: Look into st.file_uploader() with the 'type' parameter set to 'pdf'.
         2. For each uploaded PDF file:
            a. Generate a unique identifier and append it to the original file name before saving it temporarily.
               This avoids name conflicts and maintains traceability of the file.
@@ -41,34 +40,45 @@ class DocumentProcessor:
         ```
         """
         
-# Step 1: Render a file uploader widget
-        uploaded_files = st.file_uploader("Upload PDF files", type="pdf", accept_multiple_files=True)
+        # Step 1: Render a file uploader widget. Replace 'None' with the Streamlit file uploader code.
+        uploaded_files = st.file_uploader(
+            #####################################
+            # Allow only type `pdf`
+            # Allow multiple PDFs for ingestion
+            #####################################
+            label = "Upload yor PDFs here",
+            type = "pdf",
+            accept_multiple_files = True
+            
+        )
 
-        # Step 2: Process the file
         if uploaded_files is not None:
             for uploaded_file in uploaded_files:
-                # Save the uploaded file to a temporary location
-                with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-                    temp_file.write(uploaded_file.read())
-                    temp_file_path = temp_file.name  # This is the file path of the temporary file
+                # Generate a unique identifier to append to the file's original name
+                unique_id = uuid.uuid4().hex
 
-                    # Substep A: Use PyPDFLoader to load the PDF and extract pages
-                    loader = PyPDFLoader(temp_file_path)  # Pass the file path instead of the UploadedFile object
-                    pages = loader.load_and_split()
+                original_name, file_extension = os.path.splitext(uploaded_file.name)
+                temp_file_name = f"{original_name}_{unique_id}{file_extension}"
+                temp_file_path = os.path.join(tempfile.gettempdir(), temp_file_name)
 
-                        
-                        
-                        
-                        
-                        
-                        
+                # Write the uploaded PDF to a temporary file
+                with open(temp_file_path, 'wb') as f:
+                    f.write(uploaded_file.getvalue())
+
+                # Step 2: Process the temporary file
+                #####################################
+                # Use PyPDFLoader here to load the PDF and extract pages.
+                # https://python.langchain.com/docs/modules/data_connection/document_loaders/pdf#using-pypdf
+                # You will need to figure out how to use PyPDFLoader to process the temporary file.
+
+                loader = PyPDFLoader(temp_file_path)
+                pages = loader.load()
+
+                # st.write(f"Processed {len(pages)} pages for {uploaded_file.name}")
                 
                 # Step 3: Then, Add the extracted pages to the 'pages' list.
                 #####################################
-                
-                for page in pages:
-                    self.pages.append(page)
-                     
+                self.pages.extend(pages)
                 
                 # Clean up by deleting the temporary file.
                 os.unlink(temp_file_path)
