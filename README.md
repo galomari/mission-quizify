@@ -1,13 +1,16 @@
 Mission Quizify
+
 Welcome to Mission Quizify, a comprehensive and dynamic quiz platform designed to create, manage, and participate in quizzes with ease. This project aims to provide an intuitive and engaging experience for both quiz creators and participants.
 
 Table of Contents
+
 Features
 Installation
 Usage
 Contributing
 License
 Contact
+
 Features
 User-Friendly Interface: Intuitive and easy-to-navigate interface for creating and taking quizzes.
 Customizable Quizzes: Create quizzes with multiple question types, including multiple-choice, true/false, and short answer.
@@ -15,19 +18,21 @@ Real-Time Feedback: Instant feedback on quiz answers to enhance learning.
 User Management: Register and manage user profiles.
 Leaderboard: Competitive scoring with a leaderboard to track top performers.
 Responsive Design: Optimized for both desktop and mobile devices.
+
 Installation
 To get a local copy up and running, follow these steps:
 
 Clone the repository:
 
-bash
-Copy code
+
+
 git clone https://github.com/galomari/mission-quizify.git
 cd mission-quizify
+
 Create a virtual environment:
 
-bash
-Copy code
+
+
 python -m venv venv
 source venv/bin/activate   # On Windows use `venv\Scripts\activate`
 Install dependencies:
@@ -35,11 +40,13 @@ Install dependencies:
 bash
 Copy code
 pip install -r requirements.txt
+
 Run the Streamlit app:
 
-bash
-Copy code
+
+
 streamlit run app.py
+
 Usage
 Creating a Quiz:
 
