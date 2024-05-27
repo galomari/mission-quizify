@@ -6,6 +6,7 @@ sys.path.append(os.path.abspath('../../'))
 from tasks.task_3.task_3 import DocumentProcessor
 from tasks.task_4.task_4 import EmbeddingClient
 from tasks.task_5.task_5 import ChromaCollectionCreator
+from tasks.task_8.task_8 import QuizGenerator
 from langchain_core.runnables import RouterRunnable,RunnableParallel,RunnablePassthrough
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
